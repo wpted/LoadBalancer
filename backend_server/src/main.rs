@@ -1,25 +1,42 @@
+use std::io;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
 fn main() {
     println!("Hello, world!");
     const HOST: &str = "127.0.0.1";
-    const PORT: &str = "1080";
+    let mut port: String = String::new();
+    // Use unwrap() to panic when the Result() is Err(error).
+    // Use '?' to return from the call stack, enclosing the function with the error value.
+    io::stdin().read_line(&mut port).unwrap();
 
-    let end_point: String = HOST.to_owned() + ":" + PORT;
+    let endpoint: String = { HOST.to_owned() + ":" + &port };
 
-    let listener =  TcpListener::bind(end_point).unwrap();
-    println!("Web Server is listening at port {}", PORT);
 
-    for stream in listener.incoming() {
-        let _stream = stream.unwrap();
-        handle_connection(_stream);
+    // Creates a TCP listener bound to the given endpoint. Panic if bind fails.
+    let listener: TcpListener = TcpListener::bind(endpoint).unwrap();
+    println!("Web Server is listening at port {}", port);
+
+    // Connecting to any incoming connections
+    for stream_result in listener.incoming() {
+        match stream_result {
+            Ok(stream) => {
+                handle_connection(stream)
+            }
+            Err(err) => {
+                println!("Error accepting connection: {}", err)
+            }
+        }
     }
 }
 
 fn handle_connection(mut stream: TcpStream) {
-    let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+    let mut buffer: [u8; 1024] = [0; 1024];
+
+    if let Err(err) = stream.read(&mut buffer) {
+        println!("Error reading request to buffer: {}", err);
+    }
+
     println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
     let response_contents = "Hello from Rust server!";
@@ -28,6 +45,11 @@ fn handle_connection(mut stream: TcpStream) {
         response_contents.len(),
         response_contents
     );
-    stream.write(response.as_bytes()).unwrap();
+
+    if let Err(err) = stream.write(response.as_bytes()) {
+        println!("Error writing response: {}", err);
+    }
+
+    // Unwraps Result<()> to (), doesn't panic since there wouldn't be errors.
     stream.flush().unwrap();
 }
