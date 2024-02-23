@@ -70,3 +70,19 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
     // Write response back to client.
     _, _ = fmt.Fprint(w, resp.Body)
 }
+
+// healthCheck sends a request to the targetServer.
+// Returns a boolean representing the server health status.
+func (l *LoadBalancer) healthCheck(targetServer string) bool {
+    healthCheckEndpoint := fmt.Sprintf("%s/health", targetServer)
+    resp, err := http.Get(healthCheckEndpoint)
+    if err != nil {
+        return false
+    }
+
+    if resp.StatusCode != http.StatusOK {
+        return false
+    }
+
+    return true
+}
