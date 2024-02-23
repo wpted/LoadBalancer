@@ -46,18 +46,20 @@ an application.
 
 ## Steps
 
-1. Create a simple HTTP server using Rust. It should have the ability to start up on custom port.
+1. -[x] Create a simple HTTP server using Rust. It should have the ability to start up on a custom port.
 
 2. Create a basic HTTP server that can start-up, listen for incoming connections and then forward them to a single
    server.
-    - Allow concurrent requests.
-    - Create service registration endpoint.
+    - [x] Allow concurrent requests.
+    - [ ] Create service registration endpoint.
+    - [ ] Forward should match the incoming HTTP request methods and paths.
 3. Distribute incoming requests between backend servers.
-    - Allow user to choose algorithm when starting up.
+    - [ ] Allow user to choose algorithm when starting up.
 4. Perform periodic health check.
-    - Allow a health check period to be specified on the command line.
-    - Remove unhealthy backend servers from available servers.
-    - Move server that came alive back to the available servers.
+    - [ ] Allow a health check period to be specified on the command line.
+      - [ ] Health check url, GET request on backend server.
+    - [ ] Remove unhealthy backend servers from available servers.
+    - [ ] Move server that came alive back to the available servers.
 
 ## References
 
