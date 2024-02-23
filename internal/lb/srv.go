@@ -6,6 +6,7 @@ import (
     "log"
     "net/http"
     "sync"
+    "time"
 )
 
 // LoadBalancer distributes traffic to AliveServers.
@@ -15,6 +16,7 @@ type LoadBalancer struct {
     sync.RWMutex
     AliveServers map[string]struct{}
     DownServers  map[string]struct{}
+    Done         chan struct{}
 }
 
 // New creates an instance of LoadBalancer.
@@ -23,6 +25,10 @@ func New() *LoadBalancer {
         AliveServers: make(map[string]struct{}),
         DownServers:  make(map[string]struct{}),
     }
+}
+
+func (l *LoadBalancer) Close() {
+    l.Done <- struct{}{}
 }
 
 // RegisterRequest is used for registering backend servers.
@@ -39,7 +45,6 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     }
     // Ping the address.
     serverAlive := l.healthCheck(p.Address)
-
     l.RLock()
     defer l.RUnlock()
     // Only register server when backend server is alive.
@@ -85,4 +90,38 @@ func (l *LoadBalancer) healthCheck(targetServer string) bool {
     }
 
     return true
+}
+
+// ServerScan checks all registered servers.
+// This method enables the load balancer to manage servers that come back online after passing health checks and to remove servers that failed.
+func (l *LoadBalancer) ServerScan() {
+    ticker := time.NewTicker(10 * time.Second)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-l.Done:
+            return
+        case <-ticker.C:
+            l.RLock()
+            // Check all servers in AliveServers.
+            for addr := range l.AliveServers {
+                healthy := l.healthCheck(addr)
+                if !healthy {
+                    delete(l.AliveServers, addr)
+                    l.DownServers[addr] = struct{}{}
+                }
+            }
+
+            // Check all servers in DownServers.
+            for addr := range l.DownServers {
+                healthy := l.healthCheck(addr)
+                if healthy {
+                    delete(l.DownServers, addr)
+                    l.AliveServers[addr] = struct{}{}
+                }
+            }
+            l.RUnlock()
+        }
+    }
 }
