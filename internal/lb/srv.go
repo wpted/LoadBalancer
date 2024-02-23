@@ -2,6 +2,8 @@ package lb
 
 import (
     "encoding/json"
+    "fmt"
+    "log"
     "net/http"
     "sync"
 )
@@ -44,4 +46,27 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     if serverAlive {
         l.AliveServers[p.Address] = struct{}{}
     }
+}
+
+// Forward is a handler that distributes traffic to all AliveServers.
+func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
+    log.Println(req)
+
+    // 1. Forward the request to an address from the Server lists.
+    addr := ""
+
+    r, err := http.NewRequest(req.Method, addr, req.Body)
+    if err != nil {
+        log.Println(err)
+    }
+
+    // Response from backend service.
+    resp, err := l.Do(r)
+    if err != nil {
+        log.Println(err)
+    }
+    log.Println(resp)
+
+    // Write response back to client.
+    _, _ = fmt.Fprint(w, resp.Body)
 }
