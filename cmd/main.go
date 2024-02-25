@@ -2,9 +2,7 @@ package main
 
 import (
     "LoadBalancer/internal/lb"
-    "errors"
     "log"
-    "net/http"
     "os"
     "os/signal"
     "syscall"
@@ -12,17 +10,8 @@ import (
 )
 
 func main() {
-    srv := lb.New()
-    srv.HandleFunc("/", srv.Forward)
-    srv.HandleFunc("/register", srv.Register)
-
-    go func() {
-        if err := http.ListenAndServe(":80", srv); !errors.Is(err, http.ErrServerClosed) {
-            log.Fatalf("Load balancer server error: %v", err)
-        }
-    }()
-
-    go srv.ServerScan()
+    srv := lb.New(80)
+    srv.Start()
 
     sigChan := make(chan os.Signal, 1)
     signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
@@ -33,6 +22,7 @@ func main() {
     // Wait for 5 seconds.
     time.Sleep(5 * time.Second)
 
+    // Inform ServerScan to shut down.
     srv.Close()
     log.Println("Load balancer shut down succeeded.")
 }
