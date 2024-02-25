@@ -24,6 +24,7 @@ func New() *LoadBalancer {
     return &LoadBalancer{
         AliveServers: make(map[string]struct{}),
         DownServers:  make(map[string]struct{}),
+        Done:         make(chan struct{}),
     }
 }
 
@@ -101,7 +102,7 @@ func (l *LoadBalancer) ServerScan() {
     for {
         select {
         case <-l.Done:
-            return
+            break
         case <-ticker.C:
             l.RLock()
             // Check all servers in AliveServers.
