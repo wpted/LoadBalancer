@@ -2,6 +2,7 @@ package lb
 
 import (
     "encoding/json"
+    "errors"
     "fmt"
     "log"
     "net/http"
@@ -14,22 +15,49 @@ type LoadBalancer struct {
     http.ServeMux
     http.Client
     sync.RWMutex
+    Port         int
     AliveServers map[string]struct{}
     DownServers  map[string]struct{}
-    Done         chan struct{}
+    ScanDone     chan struct{}
+    ScanPeriod   time.Duration
+    ReplDone     chan struct{}
 }
 
 // New creates an instance of LoadBalancer.
-func New() *LoadBalancer {
+func New(port int) *LoadBalancer {
     return &LoadBalancer{
+        Port:         port,
         AliveServers: make(map[string]struct{}),
         DownServers:  make(map[string]struct{}),
-        Done:         make(chan struct{}),
+        ScanDone:     make(chan struct{}),
+        ScanPeriod:   10 * time.Second, // Scan Period default to 10 seconds.
+        ReplDone:     make(chan struct{}),
     }
 }
 
+func (l *LoadBalancer) Start() {
+    l.HandleFunc("/", l.Forward)
+    l.HandleFunc("/register", l.Register)
+
+    go func() {
+        if err := http.ListenAndServe(fmt.Sprintf(":%d", l.Port), l); !errors.Is(err, http.ErrServerClosed) {
+            log.Fatalf("Load balancer server error: %v", err)
+        }
+        return
+    }()
+
+    //go l.ScanPeriodically()
+    go l.Repl()
+}
+
+// Close shuts down all goroutines and closes the Done channel.
 func (l *LoadBalancer) Close() {
-    l.Done <- struct{}{}
+    // Send two signal to the done channel.
+    // This shuts down Repl() and ScanPeriodically().
+    l.ScanDone <- struct{}{}
+    l.ReplDone <- struct{}{}
+    close(l.ScanDone)
+    close(l.ReplDone)
 }
 
 // RegisterRequest is used for registering backend servers.
@@ -93,36 +121,69 @@ func (l *LoadBalancer) healthCheck(targetServer string) bool {
     return true
 }
 
-// ServerScan checks all registered servers.
-// This method enables the load balancer to manage servers that come back online after passing health checks and to remove servers that failed.
-func (l *LoadBalancer) ServerScan() {
-    ticker := time.NewTicker(10 * time.Second)
+func (l *LoadBalancer) ScanPeriodically() {
+    ticker := time.NewTicker(l.ScanPeriod)
     defer ticker.Stop()
 
     for {
         select {
-        case <-l.Done:
+        case <-l.ScanDone:
             break
         case <-ticker.C:
-            l.RLock()
-            // Check all servers in AliveServers.
-            for addr := range l.AliveServers {
-                healthy := l.healthCheck(addr)
-                if !healthy {
-                    delete(l.AliveServers, addr)
-                    l.DownServers[addr] = struct{}{}
-                }
-            }
+            l.scanServers()
+        }
+    }
+}
 
-            // Check all servers in DownServers.
-            for addr := range l.DownServers {
-                healthy := l.healthCheck(addr)
-                if healthy {
-                    delete(l.DownServers, addr)
-                    l.AliveServers[addr] = struct{}{}
-                }
+// scanServers checks all registered servers.
+// This method enables the load balancer to manage servers that come back online after passing health checks and to remove servers that failed.
+func (l *LoadBalancer) scanServers() {
+    l.RLock()
+    // Check all servers in AliveServers.
+    for addr := range l.AliveServers {
+        healthy := l.healthCheck(addr)
+        if !healthy {
+            delete(l.AliveServers, addr)
+            l.DownServers[addr] = struct{}{}
+        }
+    }
+
+    // Check all servers in DownServers.
+    for addr := range l.DownServers {
+        healthy := l.healthCheck(addr)
+        if healthy {
+            delete(l.DownServers, addr)
+            l.AliveServers[addr] = struct{}{}
+        }
+    }
+    l.RUnlock()
+}
+
+// Repl starts a repl that accepts user input.
+func (l *LoadBalancer) Repl() {
+    for {
+        select {
+        case <-l.ReplDone:
+            break
+        default:
+            var input string
+            //var scanPeriod int
+            fmt.Print("Load Balancer Repl: ")
+            _, err := fmt.Scanf("%s", &input)
+            if err != nil {
+                log.Println(err)
             }
-            l.RUnlock()
+            //
+            //fmt.Print("Scan Period: ")
+            //_, err = fmt.Scanf("%d", &scanPeriod)
+            //if err != nil {
+            //    log.Println(err)
+            //}
+            //
+            //// The repl only waits for command 'scan'.
+            //if strings.ToLower(input) == "scan" {
+            //    l.ScanPeriod = time.Duration(scanPeriod) * time.Second
+            //}
         }
     }
 }
