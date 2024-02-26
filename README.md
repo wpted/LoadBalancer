@@ -19,17 +19,33 @@ Therefore, our goals for this project are to:
 - Handle a server going offline (failing a health check).
 - Handle a server coming back online (passing a health check).
 
-## Load Balancers
+## Distributed computing
 
+- Web apps are deployed on servers with finite resources.
+- System capacity: The maximum number of requests a server can serve.
+- Horizontal scaling adds more server to a system.
+
+## Load Balancers
 A load balancer enables distribution of network traffic dynamically across resources (on-premises or cloud) to support
-an application.
+an application. It distributes incoming traffic to maximize the system's capacity and minimize the time it takes to fulfill the request.
+
+### Common used Load balancers.
+- HAProxy
+- Nginx
 
 ### Advantages
 
+- Application Reliability
 - Application Availability
 - Application Scalability
 - Application Security
 - Application performance
+
+### Disadvantages
+
+- Can be a single point of failure.
+- A user with multiple requests may be served with different backend servers: How to keep session in sync for backend servers?
+- Deploying new server versions can take longer and require more machines. How to roll traffic to new servers and drain requests from the old machine is an issue.
 
 ## Steps
 
@@ -61,4 +77,8 @@ an application.
 
 ## References
 
+### Videos
+- [Load Balancers for System Design Interviews](https://www.youtube.com/watch?v=chyZRNT7eEo)
+
+### Reads
 - [What Is a Load Balancer?](https://www.f5.com/glossary/load-balancer)
