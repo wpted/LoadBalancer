@@ -57,18 +57,20 @@ an application. It distributes incoming traffic to maximize the system's capacit
     - [x] Create service registration endpoint.
     - [ ] Forward should match the incoming HTTP request methods and paths.
 3. Distribute incoming requests between backend servers.
-    - [ ] Allow user to choose algorithm when starting up.
-    - [ ] Implement Load Balancing Algorithms
-      - [ ] Round Robin
-      - [ ] Sticky Round Robin
-      - [ ] Weighted Round Robin
-      - [ ] Least connections
-      - [ ] Least time
-      - [ ] URL hash
-      - [ ] Source IP hash
-      - [ ] Consistent hashing
-      - [ ] Threshold
-      - [ ] Random with two choices
+   - [ ] Allow user to choose algorithm when starting up.
+   - [ ] Copy the received request.
+     - [ ] HTTP header, method, body, url, hosts, schemes, path
+   - [ ] Implement Load Balancing Algorithms
+     - [x] Round Robin
+     - [ ] Sticky Round Robin
+     - [ ] Weighted Round Robin
+     - [ ] Least connections
+     - [ ] Least time
+     - [ ] URL hash
+     - [ ] Source IP hash
+     - [ ] Consistent hashing
+     - [ ] Threshold
+     - [ ] Random with two choices
 4. Perform periodic health check.
     - [ ] Allow a health check period to be specified on the command line.
       - [x] Health check url, GET request on backend server.
