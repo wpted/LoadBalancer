@@ -86,3 +86,4 @@ an application. It distributes incoming traffic to maximize the system's capacit
 
 ### Reads
 - [What Is a Load Balancer?](https://www.f5.com/glossary/load-balancer)
+- [Canceling blocking read from stdin](https://www.reddit.com/r/golang/comments/fsxkqr/cancelling_blocking_read_from_stdin/)
