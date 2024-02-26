@@ -10,6 +10,8 @@ import (
     "time"
 )
 
+type BEServers map[string]struct{}
+
 // LoadBalancer distributes traffic to AliveServers.
 type LoadBalancer struct {
     http.ServeMux
@@ -17,8 +19,8 @@ type LoadBalancer struct {
     sync.RWMutex
     ScanOptions
     Port         int
-    AliveServers map[string]struct{}
-    DownServers  map[string]struct{}
+    AliveServers BEServers
+    DownServers  BEServers
     ReplDone     chan struct{}
 }
 
