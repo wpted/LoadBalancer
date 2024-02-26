@@ -15,23 +15,26 @@ type LoadBalancer struct {
     http.ServeMux
     http.Client
     sync.RWMutex
+    ScanOptions
     Port         int
     AliveServers map[string]struct{}
     DownServers  map[string]struct{}
-    ScanDone     chan struct{}
-    ScanPeriod   time.Duration
     ReplDone     chan struct{}
 }
 
 // New creates an instance of LoadBalancer.
 func New(port int) *LoadBalancer {
+    scanOpt := ScanOptions{
+        ScanDone:   make(chan struct{}),
+        ScanPeriod: 10 * time.Second, // Scan Period default to 10 seconds.
+        ScanTicker: time.NewTicker(10 * time.Second),
+    }
     return &LoadBalancer{
+        ScanOptions:  scanOpt,
         Port:         port,
         AliveServers: make(map[string]struct{}),
         DownServers:  make(map[string]struct{}),
-        ScanDone:     make(chan struct{}),
-        ScanPeriod:   10 * time.Second, // Scan Period default to 10 seconds.
-        ReplDone:     make(chan struct{}),
+        //ReplDone:     make(chan struct{}),
     }
 }
 
@@ -46,8 +49,8 @@ func (l *LoadBalancer) Start() {
         return
     }()
 
-    //go l.ScanPeriodically()
-    go l.Repl()
+    go l.ScanPeriodically()
+    //go l.Repl()
 }
 
 // Close shuts down all goroutines and closes the Done channel.
@@ -55,9 +58,9 @@ func (l *LoadBalancer) Close() {
     // Send two signal to the done channel.
     // This shuts down Repl() and ScanPeriodically().
     l.ScanDone <- struct{}{}
-    l.ReplDone <- struct{}{}
+    //l.ReplDone <- struct{}{}
     close(l.ScanDone)
-    close(l.ReplDone)
+    //close(l.ReplDone)
 }
 
 // RegisterRequest is used for registering backend servers.
@@ -121,15 +124,19 @@ func (l *LoadBalancer) healthCheck(targetServer string) bool {
     return true
 }
 
-func (l *LoadBalancer) ScanPeriodically() {
-    ticker := time.NewTicker(l.ScanPeriod)
-    defer ticker.Stop()
+type ScanOptions struct {
+    ScanDone   chan struct{}
+    ScanPeriod time.Duration
+    ScanTicker *time.Ticker
+}
 
+func (l *LoadBalancer) ScanPeriodically() {
     for {
         select {
         case <-l.ScanDone:
-            break
-        case <-ticker.C:
+            l.ScanTicker.Stop()
+            return
+        case <-l.ScanTicker.C:
             l.scanServers()
         }
     }
@@ -157,33 +164,38 @@ func (l *LoadBalancer) scanServers() {
         }
     }
     l.RUnlock()
+    fmt.Println("Scanned and updated.")
 }
 
-// Repl starts a repl that accepts user input.
-func (l *LoadBalancer) Repl() {
-    for {
-        select {
-        case <-l.ReplDone:
-            break
-        default:
-            var input string
-            //var scanPeriod int
-            fmt.Print("Load Balancer Repl: ")
-            _, err := fmt.Scanf("%s", &input)
-            if err != nil {
-                log.Println(err)
-            }
-            //
-            //fmt.Print("Scan Period: ")
-            //_, err = fmt.Scanf("%d", &scanPeriod)
-            //if err != nil {
-            //    log.Println(err)
-            //}
-            //
-            //// The repl only waits for command 'scan'.
-            //if strings.ToLower(input) == "scan" {
-            //    l.ScanPeriod = time.Duration(scanPeriod) * time.Second
-            //}
-        }
-    }
-}
+//func (l *LoadBalancer) Repl() {
+//    // By default, we start a repl waiting for changes on the scan period.
+//    for {
+//        select {
+//        case <-l.ReplDone:
+//            return
+//        default:
+//            fmt.Print("Load balancer repl: ")
+//            var input string
+//            _, err := fmt.Scanf("%s", &input)
+//            if err != nil {
+//                log.Println(err)
+//            }
+//            if strings.ToLower(input) == "scan" {
+//                var scanPeriod int
+//                fmt.Print("New Scan period: ")
+//                _, err = fmt.Scanf("%d", &scanPeriod)
+//                if err != nil {
+//                    log.Println(err)
+//                }
+//
+//                t := time.Duration(scanPeriod) * time.Second
+//
+//                if t != l.ScanPeriod {
+//                    // Reset the ticker and update l.ScanPeriod.
+//                    l.ScanPeriod = t
+//                    l.ScanTicker.Reset(l.ScanPeriod)
+//                }
+//            }
+//        }
+//    }
+//}
