@@ -75,6 +75,10 @@ an application. It distributes incoming traffic to maximize the system's capacit
     - [x] Remove unhealthy backend servers from available servers.
     - [x] Move server that came alive back to the available servers.
 
+## Unsolved problems
+1. A repl on another routine is fine, but it requires input for the for loop to proceed, which blocks the receiving from l.ReplDone(). I'm disabling the repl for now.
+![blockedForLoop.png](static%2FblockedForLoop.png)
+
 ## References
 
 ### Videos
