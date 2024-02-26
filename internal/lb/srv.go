@@ -87,18 +87,17 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
 
 // Forward is a handler that distributes traffic to all AliveServers.
 func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
-    log.Println(req)
 
     // 1. Forward the request to an address from the Server lists.
     addr := ""
+    newReq, err := copyRequest(req, addr)
 
-    r, err := http.NewRequest(req.Method, addr, req.Body)
     if err != nil {
         log.Println(err)
     }
 
     // Response from backend service.
-    resp, err := l.Do(r)
+    resp, err := l.Do(newReq)
     if err != nil {
         log.Println(err)
     }
@@ -106,6 +105,26 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
 
     // Write response back to client.
     _, _ = fmt.Fprint(w, resp.Body)
+}
+
+func copyRequest(req *http.Request, target string) (*http.Request, error) {
+    // The general form represented is: [scheme:][//[userinfo@]host][/]path[?query][#fragment]
+    fmt.Printf("%#v", req.URL.Scheme)
+    r, err := http.NewRequest(req.Method, target, req.Body)
+    if err != nil {
+        return nil, err
+    }
+
+    // Copy the detailed path.
+    r.URL.Scheme = req.URL.Scheme
+    r.URL.Path = req.URL.Path
+
+    // Deep copy the header instead of using the original one
+    r.Header = make(http.Header)
+    for k, v := range req.Header {
+        r.Header[k] = v
+    }
+    return r, nil
 }
 
 // healthCheck sends a request to the targetServer.
@@ -164,7 +183,6 @@ func (l *LoadBalancer) scanServers() {
         }
     }
     l.RUnlock()
-    fmt.Println("Scanned and updated.")
 }
 
 //func (l *LoadBalancer) Repl() {
