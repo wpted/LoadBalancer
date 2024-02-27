@@ -10,7 +10,11 @@ import (
     "time"
 )
 
-type BEServers map[string]struct{}
+type BEServers map[string]*BEServer
+type BEServer struct {
+    Weight         int
+    ConnectionTime time.Duration
+}
 
 // LoadBalancer distributes traffic to AliveServers.
 type LoadBalancer struct {
@@ -28,8 +32,8 @@ type LoadBalancer struct {
 func New(port int, scanPeriod int) *LoadBalancer {
     return &LoadBalancer{
         Port:         port,
-        AliveServers: make(map[string]struct{}),
-        DownServers:  make(map[string]struct{}),
+        AliveServers: make(map[string]*BEServer),
+        DownServers:  make(map[string]*BEServer),
         ScanDone:     make(chan struct{}),
         ScanPeriod:   time.Duration(scanPeriod) * time.Second,
     }
@@ -75,7 +79,7 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     defer l.RUnlock()
     // Only register server when backend server is alive.
     if serverAlive {
-        l.AliveServers[p.Address] = struct{}{}
+        l.AliveServers[p.Address] = new(BEServer)
     }
 }
 
@@ -159,7 +163,7 @@ func (l *LoadBalancer) scanServers() {
         healthy := l.healthCheck(addr)
         if !healthy {
             delete(l.AliveServers, addr)
-            l.DownServers[addr] = struct{}{}
+            l.DownServers[addr] = new(BEServer)
         }
     }
 
@@ -168,7 +172,7 @@ func (l *LoadBalancer) scanServers() {
         healthy := l.healthCheck(addr)
         if healthy {
             delete(l.DownServers, addr)
-            l.AliveServers[addr] = struct{}{}
+            l.AliveServers[addr] = new(BEServer)
         }
     }
     l.RUnlock()
