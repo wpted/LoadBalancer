@@ -72,7 +72,7 @@ an application. It distributes incoming traffic to maximize the system's capacit
      - [ ] Threshold
      - [ ] Random with two choices
 4. Perform periodic health check.
-    - [ ] Allow a health check period to be specified on the command line.
+    - [ ] Allow a health check period to be specified on the command line during initializing.
       - [x] Health check url, GET request on backend server.
     - [x] Remove unhealthy backend servers from available servers.
     - [x] Move server that came alive back to the available servers.
