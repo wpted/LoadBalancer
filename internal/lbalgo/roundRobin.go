@@ -2,12 +2,10 @@ package lbalgo
 
 import (
     "LoadBalancer/internal/lb"
-    "errors"
+    "net/http"
     "sort"
     "sync"
 )
-
-var ErrNoServer = errors.New("error no available server")
 
 // RR is the implemented queue for using the Round Robin algorithm.
 type RR struct {
@@ -21,8 +19,8 @@ func (r *RR) Less(i, j int) bool {
     return r.servers[i] < r.servers[j]
 }
 
-// New creates a new instance of RR.
-func New(backendServers lb.BEServers) *RR {
+// NewRR creates a new instance of RR.
+func NewRR(backendServers lb.BEServers) *RR {
     servers := make([]string, 0)
     for addr := range backendServers {
         servers = append(servers, addr)
@@ -53,7 +51,7 @@ func (r *RR) Renew(backendServers map[string]struct{}) {
 }
 
 // ChooseServer rotates the queue within RR and returns the chosenServer.
-func (r *RR) ChooseServer() (string, error) {
+func (r *RR) ChooseServer(_ *http.Request) (string, error) {
     chosenServer := r.rotate()
     if chosenServer == "" {
         return "", ErrNoServer

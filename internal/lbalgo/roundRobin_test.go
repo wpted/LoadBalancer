@@ -3,15 +3,17 @@ package lbalgo
 import (
     "LoadBalancer/internal/lb"
     "errors"
+    "net/http"
     "testing"
 )
 
 func TestRR_ChooseServer(t *testing.T) {
 
+    emptyReq := new(http.Request)
     t.Run("No servers", func(t *testing.T) {
         bes := new(lb.BEServers)
-        rr := New(*bes)
-        _, err := rr.ChooseServer()
+        rr := NewRR(*bes)
+        _, err := rr.ChooseServer(emptyReq)
         if !errors.Is(err, ErrNoServer) {
             t.Errorf("error incorrect error: expected %#v, got %#v.\n", ErrNoServer, err)
         }
@@ -29,8 +31,8 @@ func TestRR_ChooseServer(t *testing.T) {
         expectedChosen := "Address A"
         expectedRR := []string{"Address B", "Address C", "Address D", "Address A"}
 
-        rr := New(bes)
-        res, err := rr.ChooseServer()
+        rr := NewRR(bes)
+        res, err := rr.ChooseServer(emptyReq)
         if err != nil {
             t.Errorf("error choosing server: got %#v.\n", err)
         }
@@ -86,7 +88,7 @@ func TestRR_Renew(t *testing.T) {
     }
 
     for _, tc := range testCases {
-        rr := New(bes)
+        rr := NewRR(bes)
         rr.Renew(tc.newBes)
 
         if !assertEqualSlice(rr.servers, tc.expected) {
