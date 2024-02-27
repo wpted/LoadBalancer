@@ -8,10 +8,10 @@ import (
 
 func TestSRR_ChooseServer(t *testing.T) {
     bes := lb.BEServers{
-        "Address A": struct{}{},
-        "Address B": struct{}{},
-        "Address C": struct{}{},
-        "Address D": struct{}{},
+        "Address A": new(lb.BEServer),
+        "Address B": new(lb.BEServer),
+        "Address C": new(lb.BEServer),
+        "Address D": new(lb.BEServer),
     }
 
     srr := NewSRR(bes)
@@ -48,10 +48,10 @@ func TestSRR_ChooseServer(t *testing.T) {
 
 func TestSRR_Renew(t *testing.T) {
     bes := lb.BEServers{
-        "Address A": struct{}{},
-        "Address B": struct{}{},
-        "Address C": struct{}{},
-        "Address D": struct{}{},
+        "Address A": new(lb.BEServer),
+        "Address B": new(lb.BEServer),
+        "Address C": new(lb.BEServer),
+        "Address D": new(lb.BEServer),
     }
 
     srr := NewSRR(bes)
@@ -65,9 +65,9 @@ func TestSRR_Renew(t *testing.T) {
     srr.AllClients = allClients
 
     newBes := lb.BEServers{
-        "Address B": struct{}{},
-        "Address C": struct{}{}, // Delete server A, D.
-        "Address E": struct{}{}, // Add server E.
+        "Address B": new(lb.BEServer),
+        "Address C": new(lb.BEServer), // Delete server A, D.
+        "Address E": new(lb.BEServer), // Add server E.
     }
 
     srr.Renew(newBes)
