@@ -21,10 +21,10 @@ func TestRR_ChooseServer(t *testing.T) {
 
     t.Run("Correct Backend Server", func(t *testing.T) {
         bes := lb.BEServers{
-            "Address A": struct{}{},
-            "Address B": struct{}{},
-            "Address C": struct{}{},
-            "Address D": struct{}{},
+            "Address A": new(lb.BEServer),
+            "Address B": new(lb.BEServer),
+            "Address C": new(lb.BEServer),
+            "Address D": new(lb.BEServer),
         }
 
         // After 1 rotate.
@@ -50,10 +50,10 @@ func TestRR_ChooseServer(t *testing.T) {
 
 func TestRR_Renew(t *testing.T) {
     bes := lb.BEServers{
-        "Address A": struct{}{},
-        "Address B": struct{}{},
-        "Address C": struct{}{},
-        "Address D": struct{}{},
+        "Address A": new(lb.BEServer),
+        "Address B": new(lb.BEServer),
+        "Address C": new(lb.BEServer),
+        "Address D": new(lb.BEServer),
     }
 
     testCases := []struct {
@@ -62,26 +62,26 @@ func TestRR_Renew(t *testing.T) {
     }{
         {
             newBes: lb.BEServers{
-                "Address B": struct{}{},
-                "Address C": struct{}{},
-                "Address D": struct{}{},
-                "Address A": struct{}{},
-                "Address E": struct{}{}, // Add server E.
+                "Address B": new(lb.BEServer),
+                "Address C": new(lb.BEServer),
+                "Address D": new(lb.BEServer),
+                "Address A": new(lb.BEServer),
+                "Address E": new(lb.BEServer), // Add server E.
             },
             expected: []string{"Address A", "Address B", "Address C", "Address D", "Address E"},
         },
         {
             newBes: lb.BEServers{
-                "Address B": struct{}{},
-                "Address C": struct{}{},
-                "Address D": struct{}{}, // Delete server A.
+                "Address B": new(lb.BEServer),
+                "Address C": new(lb.BEServer),
+                "Address D": new(lb.BEServer), // Delete server A.
             },
             expected: []string{"Address B", "Address C", "Address D"},
         },
         {
             newBes: lb.BEServers{
-                "Address B": struct{}{},
-                "Address E": struct{}{}, // Delete server A, C, D and add server E.
+                "Address B": new(lb.BEServer),
+                "Address E": new(lb.BEServer), // Delete server A, C, D and add server E.
             },
             expected: []string{"Address B", "Address E"},
         },
