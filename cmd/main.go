@@ -2,6 +2,7 @@ package main
 
 import (
     "LoadBalancer/internal/lb"
+    "flag"
     "log"
     "os"
     "os/signal"
@@ -10,7 +11,11 @@ import (
 )
 
 func main() {
-    srv := lb.New(80)
+    // scanPeriod default to 10 seconds
+    scanPeriod := flag.Int("t", 10, "scan period")
+    flag.Parse()
+
+    srv := lb.New(80, *scanPeriod)
     srv.Start()
 
     sigChan := make(chan os.Signal, 1)
