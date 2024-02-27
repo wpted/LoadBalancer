@@ -33,7 +33,7 @@ func NewRR(backendServers lb.BEServers) *RR {
 }
 
 // Renew updates the queue within RR.
-func (r *RR) Renew(backendServers map[string]struct{}) {
+func (r *RR) Renew(backendServers lb.BEServers) {
     // 1. Check down servers.
     for _, addr := range r.servers {
         if _, ok := backendServers[addr]; !ok {
@@ -108,10 +108,14 @@ func (r *RR) exists(serverAddress string) bool {
 func (r *RR) remove(serverAddress string) {
     r.Lock()
     defer r.Unlock()
-    for n, addr := range r.servers {
-        if serverAddress == addr {
-            r.servers = append(r.servers[:n], r.servers[n+1:]...)
-            return
+
+    newServers := make([]string, 0)
+
+    for _, addr := range r.servers {
+        if serverAddress != addr {
+            newServers = append(newServers, addr)
         }
     }
+
+    r.servers = newServers
 }
