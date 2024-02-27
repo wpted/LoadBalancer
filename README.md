@@ -77,7 +77,7 @@ fulfill the request.
     - [ ] Implement Load Balancing Algorithms
         - [x] Round Robin
         - [x] Sticky Round Robin
-        - [ ] Weighted Round Robin
+        - [x] Weighted Round Robin
         - [ ] Least connections
         - [ ] Least time
         - [ ] URL hash
