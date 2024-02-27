@@ -25,8 +25,34 @@ Pros:
 - Less data consistency challenges
 - Trouble shoot for a user would be easier ( All issues are isolated to a single server )
 
-
 Cons:
 
 - Uneven traffic across backend servers.
 - Failed server causes interrupted users session ( Fail-over mechanism in need )
+
+### Weighted Round-robin
+
+Load balancing by assigning numeric weights to all the servers. The weights can be assigned based on factors such as
+servers processing power or total bandwidth.
+
+> Suppose we have three servers —ServerA, ServerB, ServerC— with weights (5, 2, 1) that are waiting to serve incoming
+requests behind the load balancer.
+> 
+> The load balancer will forward the first five requests to ServerA, the next two requests to ServerB, and then one
+request to ServerC.
+> 
+> If any of the other incoming requests arrive, the load balancer will forward those requests back to ServerA again for
+the next five incoming requests, then ServerB will get its turn, and after that the requests will be forwarded to
+ServerC. The cycle will continue on this way.
+
+By using the Weighted Round Robin algorithm, network administrators can ensure a more balanced and efficient use of
+resources, leading to improved performance and user experience.
+
+Pros:
+1. Ensuring all servers are used according to their capacity
+2. Reducing the risk of server overload
+3. Provides fault tolerance by redirecting requests in case of server failure
+
+Cons:
+1. How to accurately assign weight? Accurate assignments of weights can be a complex task.
+2. Frequent changes of server capacity may lead to inaccurate weights. How to update weights correctly?
