@@ -44,7 +44,7 @@ func TestWRR_ChooseServer(t *testing.T) {
     }
 
     for _, tc := range testCases {
-        wrr := NewWRR(bes)
+        wrr := NewWRR(&bes)
 
         var chosen string
         var err error
@@ -102,7 +102,7 @@ func TestWRR_Renew(t *testing.T) {
     }
 
     for _, tc := range testCases {
-        wrr := NewWRR(bes)
+        wrr := NewWRR(&bes)
         wrr.Renew(tc.newBes)
         serverAddresses := make([]string, 0)
         for _, server := range wrr.servers {
