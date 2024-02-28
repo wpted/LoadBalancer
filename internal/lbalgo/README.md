@@ -36,23 +36,47 @@ Load balancing by assigning numeric weights to all the servers. The weights can 
 servers processing power or total bandwidth.
 
 > Suppose we have three servers —ServerA, ServerB, ServerC— with weights (5, 2, 1) that are waiting to serve incoming
-requests behind the load balancer.
-> 
+> requests behind the load balancer.
+>
 > The load balancer will forward the first five requests to ServerA, the next two requests to ServerB, and then one
-request to ServerC.
-> 
+> request to ServerC.
+>
 > If any of the other incoming requests arrive, the load balancer will forward those requests back to ServerA again for
-the next five incoming requests, then ServerB will get its turn, and after that the requests will be forwarded to
-ServerC. The cycle will continue on this way.
+> the next five incoming requests, then ServerB will get its turn, and after that the requests will be forwarded to
+> ServerC. The cycle will continue on this way.
 
 By using the Weighted Round Robin algorithm, network administrators can ensure a more balanced and efficient use of
 resources, leading to improved performance and user experience.
 
 Pros:
+
 1. Ensuring all servers are used according to their capacity
 2. Reducing the risk of server overload
 3. Provides fault tolerance by redirecting requests in case of server failure
 
 Cons:
+
 1. How to accurately assign weight? Accurate assignments of weights can be a complex task.
 2. Frequent changes of server capacity may lead to inaccurate weights. How to update weights correctly?
+
+### Least connection
+
+Least connection is a load balancing algorithm used in computer networking to distribute incoming network traffic
+among multiple servers or resources. The basic principle behind the least connection algorithm is to direct new requests
+to the server that is currently serving the fewest number of active connections. This helps to ensure that the load is
+evenly distributed across all available servers, thus optimizing performance and preventing any single server from
+becoming overwhelmed.
+
+1. When a new request comes in, the load balancer examines the current number of active connections on each server.
+2. The load balancer then selects the server with the fewest active connections.
+3. The new request is forwarded to the selected server.
+4. The load balancer keeps track of the number of connections to each server and updates this information as requests are
+processed and connections are closed. 
+
+Pros:
+1. Traffic is distributed dynamically based on the current load on each server
+2. 
+
+Cons:
+1. 
+2. 
