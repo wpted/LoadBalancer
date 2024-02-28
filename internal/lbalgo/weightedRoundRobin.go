@@ -12,7 +12,7 @@ type WRR struct {
     servers []*weightedServer
 }
 
-type weightedServer struct {
+type weightedServer struct { // We need an extra data structure to keep track of the Count.
     Addr   string
     Weight int
     Count  int
@@ -24,13 +24,13 @@ func (w *WRR) Less(i, j int) bool {
     return w.servers[i].Weight > w.servers[j].Weight
 }
 
-func NewWRR(backendServers lb.BEServers) *WRR {
+func NewWRR(backendServers *lb.BEServers) *WRR {
     servers := make([]*weightedServer, 0)
-    for addr := range backendServers {
+    for addr, srv := range *backendServers {
         ws := &weightedServer{
             Addr:   addr,
-            Weight: backendServers[addr].Weight,
-            Count:  backendServers[addr].Weight,
+            Weight: srv.Weight,
+            Count:  srv.Weight,
         }
         servers = append(servers, ws)
     }
