@@ -105,3 +105,6 @@ fulfill the request.
 - [Kafka, Range Round-Robin 和 Sticky三種分區分配策略](https://blog.csdn.net/u010022158/article/details/106271208)
 - [What is the weighted round-robin technique](https://www.educative.io/answers/what-is-the-weighted-round-robin-load-balancing-technique)
 - [What is weighted round-robin](https://webhostinggeeks.com/blog/what-is-weighted-round-robin/)
+- [Least connection method](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/leastconnection-method.html)
+- [負載均衡策略之最少連接](https://mozillazg.com/2019/02/load-balancing-strategy-algorithm-weighted-least-connection.html#hidleast-connection)
+- [Nginx HTTP upstream least connection module](https://github.com/nginx/nginx/blob/d8ccef021588cf79d2dae7c132a0b1225ed52c30/src/http/modules/ngx_http_upstream_least_conn_module.c)
