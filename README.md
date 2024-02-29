@@ -78,7 +78,7 @@ fulfill the request.
         - [x] Round Robin
         - [x] Sticky Round Robin
         - [x] Weighted Round Robin
-        - [ ] Least connections
+        - [x] Least connections
         - [ ] Least time
         - [ ] URL hash
         - [ ] Source IP hash
@@ -108,3 +108,5 @@ fulfill the request.
 - [Least connection method](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/leastconnection-method.html)
 - [負載均衡策略之最少連接](https://mozillazg.com/2019/02/load-balancing-strategy-algorithm-weighted-least-connection.html#hidleast-connection)
 - [Nginx HTTP upstream least connection module](https://github.com/nginx/nginx/blob/d8ccef021588cf79d2dae7c132a0b1225ed52c30/src/http/modules/ngx_http_upstream_least_conn_module.c)
+- [Least response time load balancing](http://smallrye.io/smallrye-stork/1.1.1/load-balancer/response-time/#)
+- [What is the least response time load balancing technique](https://www.educative.io/answers/what-is-the-least-response-time-load-balancing-technique)
