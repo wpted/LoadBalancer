@@ -1,35 +1,35 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "testing"
 )
 
 func TestLC_ChooseServer(t *testing.T) {
     testCases := []struct {
-        servers        *lb.BEServers
+        servers        *model.BEServers
         expectedChosen string
     }{
         {
-            servers: &lb.BEServers{
-                "Address A": &lb.BEServer{Address: "Address A", Connections: 4},
-                "Address B": &lb.BEServer{Address: "Address B", Connections: 1},
-                "Address C": &lb.BEServer{Address: "Address C", Connections: 3},
-                "Address D": &lb.BEServer{Address: "Address D", Connections: 2},
+            servers: &model.BEServers{
+                "Address A": &model.BEServer{Address: "Address A", Connections: 4},
+                "Address B": &model.BEServer{Address: "Address B", Connections: 1},
+                "Address C": &model.BEServer{Address: "Address C", Connections: 3},
+                "Address D": &model.BEServer{Address: "Address D", Connections: 2},
             },
             expectedChosen: "Address B",
         },
         {
-            servers: &lb.BEServers{
-                "Address A": &lb.BEServer{Address: "Address A", Connections: 4},
-                "Address B": &lb.BEServer{Address: "Address B", Connections: 1},
-                "Address C": &lb.BEServer{Address: "Address C", Connections: 3},
-                "Address D": &lb.BEServer{Address: "Address D", Connections: 2},
-                "Address E": &lb.BEServer{Address: "Address E", Connections: 5},
-                "Address G": &lb.BEServer{Address: "Address G", Connections: 8},
-                "Address F": &lb.BEServer{Address: "Address F", Connections: 12},
-                "Address p": &lb.BEServer{Address: "Address P", Connections: 6},
+            servers: &model.BEServers{
+                "Address A": &model.BEServer{Address: "Address A", Connections: 4},
+                "Address B": &model.BEServer{Address: "Address B", Connections: 1},
+                "Address C": &model.BEServer{Address: "Address C", Connections: 3},
+                "Address D": &model.BEServer{Address: "Address D", Connections: 2},
+                "Address E": &model.BEServer{Address: "Address E", Connections: 5},
+                "Address G": &model.BEServer{Address: "Address G", Connections: 8},
+                "Address F": &model.BEServer{Address: "Address F", Connections: 12},
+                "Address p": &model.BEServer{Address: "Address P", Connections: 6},
             },
             expectedChosen: "Address B",
         },
@@ -50,39 +50,39 @@ func TestLC_ChooseServer(t *testing.T) {
 }
 
 func TestLC_Renew(t *testing.T) {
-    bes := lb.BEServers{
-        "Address A": &lb.BEServer{Address: "Address A", Connections: 1},
-        "Address B": &lb.BEServer{Address: "Address B", Connections: 2},
-        "Address C": &lb.BEServer{Address: "Address C", Connections: 3},
-        "Address D": &lb.BEServer{Address: "Address D", Connections: 4},
+    bes := model.BEServers{
+        "Address A": &model.BEServer{Address: "Address A", Connections: 1},
+        "Address B": &model.BEServer{Address: "Address B", Connections: 2},
+        "Address C": &model.BEServer{Address: "Address C", Connections: 3},
+        "Address D": &model.BEServer{Address: "Address D", Connections: 4},
     }
 
     testCases := []struct {
-        newBes         lb.BEServers
+        newBes         model.BEServers
         expectedChosen string
     }{
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Address: "Address B", Connections: 2},
-                "Address C": &lb.BEServer{Address: "Address C", Connections: 3},
-                "Address D": &lb.BEServer{Address: "Address D", Connections: 4},
-                "Address A": &lb.BEServer{Address: "Address A", Connections: 1},
-                "Address E": &lb.BEServer{Address: "Address E", Connections: 6}, // Add server E.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Address: "Address B", Connections: 2},
+                "Address C": &model.BEServer{Address: "Address C", Connections: 3},
+                "Address D": &model.BEServer{Address: "Address D", Connections: 4},
+                "Address A": &model.BEServer{Address: "Address A", Connections: 1},
+                "Address E": &model.BEServer{Address: "Address E", Connections: 6}, // Add server E.
             },
             expectedChosen: "Address A",
         },
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Address: "Address B", Connections: 2},
-                "Address C": &lb.BEServer{Address: "Address C", Connections: 3},
-                "Address D": &lb.BEServer{Address: "Address D", Connections: 4}, // Delete server A.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Address: "Address B", Connections: 2},
+                "Address C": &model.BEServer{Address: "Address C", Connections: 3},
+                "Address D": &model.BEServer{Address: "Address D", Connections: 4}, // Delete server A.
             },
             expectedChosen: "Address B",
         },
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Address: "Address B", Connections: 2},
-                "Address E": &lb.BEServer{Address: "Address E", Connections: 4}, // Delete server A, C, D and add server E.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Address: "Address B", Connections: 2},
+                "Address E": &model.BEServer{Address: "Address E", Connections: 4}, // Delete server A, C, D and add server E.
             },
             expectedChosen: "Address B",
         },
@@ -105,26 +105,26 @@ func TestLC_Renew(t *testing.T) {
 
 func Test_buildMinHeap(t *testing.T) {
     testCases := []struct {
-        servers         *lb.BEServers
-        expectedMinHeap []*lb.BEServer
+        servers         *model.BEServers
+        expectedMinHeap []*model.BEServer
     }{
         {
-            servers: &lb.BEServers{
-                "Address A": &lb.BEServer{Connections: 4},
-                "Address B": &lb.BEServer{Connections: 1},
-                "Address C": &lb.BEServer{Connections: 3},
-                "Address D": &lb.BEServer{Connections: 2},
+            servers: &model.BEServers{
+                "Address A": &model.BEServer{Connections: 4},
+                "Address B": &model.BEServer{Connections: 1},
+                "Address C": &model.BEServer{Connections: 3},
+                "Address D": &model.BEServer{Connections: 2},
             },
         },
         {
-            servers: &lb.BEServers{
-                "Address A": &lb.BEServer{Connections: 4},
-                "Address B": &lb.BEServer{Connections: 1},
-                "Address C": &lb.BEServer{Connections: 3},
-                "Address E": &lb.BEServer{Connections: 2},
-                "Address F": &lb.BEServer{Connections: 6},
-                "Address G": &lb.BEServer{Connections: 10},
-                "Address H": &lb.BEServer{Connections: 11},
+            servers: &model.BEServers{
+                "Address A": &model.BEServer{Connections: 4},
+                "Address B": &model.BEServer{Connections: 1},
+                "Address C": &model.BEServer{Connections: 3},
+                "Address E": &model.BEServer{Connections: 2},
+                "Address F": &model.BEServer{Connections: 6},
+                "Address G": &model.BEServer{Connections: 10},
+                "Address H": &model.BEServer{Connections: 11},
             },
         },
     }
@@ -139,7 +139,7 @@ func Test_buildMinHeap(t *testing.T) {
     }
 }
 
-func isMinHeap(servers []*lb.BEServer) bool {
+func isMinHeap(servers []*model.BEServer) bool {
     // A min heap should satisfy condition: Every node in array must be smaller than its children ( If exist ).
     l := len(servers)
     for n, srv := range servers {

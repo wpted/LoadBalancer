@@ -1,17 +1,17 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "testing"
 )
 
 func TestSRR_ChooseServer(t *testing.T) {
-    bes := lb.BEServers{
-        "Address A": new(lb.BEServer),
-        "Address B": new(lb.BEServer),
-        "Address C": new(lb.BEServer),
-        "Address D": new(lb.BEServer),
+    bes := &model.BEServers{
+        "Address A": new(model.BEServer),
+        "Address B": new(model.BEServer),
+        "Address C": new(model.BEServer),
+        "Address D": new(model.BEServer),
     }
 
     srr := NewSRR(bes)
@@ -47,11 +47,11 @@ func TestSRR_ChooseServer(t *testing.T) {
 }
 
 func TestSRR_Renew(t *testing.T) {
-    bes := lb.BEServers{
-        "Address A": new(lb.BEServer),
-        "Address B": new(lb.BEServer),
-        "Address C": new(lb.BEServer),
-        "Address D": new(lb.BEServer),
+    bes := &model.BEServers{
+        "Address A": new(model.BEServer),
+        "Address B": new(model.BEServer),
+        "Address C": new(model.BEServer),
+        "Address D": new(model.BEServer),
     }
 
     srr := NewSRR(bes)
@@ -64,10 +64,10 @@ func TestSRR_Renew(t *testing.T) {
 
     srr.AllClients = allClients
 
-    newBes := lb.BEServers{
-        "Address B": new(lb.BEServer),
-        "Address C": new(lb.BEServer), // Delete server A, D.
-        "Address E": new(lb.BEServer), // Add server E.
+    newBes := model.BEServers{
+        "Address B": new(model.BEServer),
+        "Address C": new(model.BEServer), // Delete server A, D.
+        "Address E": new(model.BEServer), // Add server E.
     }
 
     srr.Renew(newBes)

@@ -1,16 +1,16 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "testing"
 )
 
 func TestWRR_ChooseServer(t *testing.T) {
-    bes := lb.BEServers{
-        "Address A": &lb.BEServer{Weight: 2},
-        "Address B": &lb.BEServer{Weight: 1},
-        "Address C": &lb.BEServer{Weight: 5},
+    bes := model.BEServers{
+        "Address A": &model.BEServer{Weight: 2},
+        "Address B": &model.BEServer{Weight: 1},
+        "Address C": &model.BEServer{Weight: 5},
     }
 
     testCases := []struct {
@@ -63,39 +63,39 @@ func TestWRR_ChooseServer(t *testing.T) {
 }
 
 func TestWRR_Renew(t *testing.T) {
-    bes := lb.BEServers{
-        "Address A": &lb.BEServer{Weight: 1},
-        "Address B": &lb.BEServer{Weight: 2},
-        "Address C": &lb.BEServer{Weight: 3},
-        "Address D": &lb.BEServer{Weight: 4},
+    bes := model.BEServers{
+        "Address A": &model.BEServer{Weight: 1},
+        "Address B": &model.BEServer{Weight: 2},
+        "Address C": &model.BEServer{Weight: 3},
+        "Address D": &model.BEServer{Weight: 4},
     }
 
     testCases := []struct {
-        newBes   lb.BEServers
+        newBes   model.BEServers
         expected []string
     }{
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Weight: 2},
-                "Address C": &lb.BEServer{Weight: 3},
-                "Address D": &lb.BEServer{Weight: 4},
-                "Address A": &lb.BEServer{Weight: 1},
-                "Address E": &lb.BEServer{Weight: 6}, // Add server E.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Weight: 2},
+                "Address C": &model.BEServer{Weight: 3},
+                "Address D": &model.BEServer{Weight: 4},
+                "Address A": &model.BEServer{Weight: 1},
+                "Address E": &model.BEServer{Weight: 6}, // Add server E.
             },
             expected: []string{"Address E", "Address D", "Address C", "Address B", "Address A"},
         },
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Weight: 2},
-                "Address C": &lb.BEServer{Weight: 3},
-                "Address D": &lb.BEServer{Weight: 4}, // Delete server A.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Weight: 2},
+                "Address C": &model.BEServer{Weight: 3},
+                "Address D": &model.BEServer{Weight: 4}, // Delete server A.
             },
             expected: []string{"Address D", "Address C", "Address B"},
         },
         {
-            newBes: lb.BEServers{
-                "Address B": &lb.BEServer{Weight: 2},
-                "Address E": &lb.BEServer{Weight: 4}, // Delete server A, C, D and add server E.
+            newBes: model.BEServers{
+                "Address B": &model.BEServer{Weight: 2},
+                "Address E": &model.BEServer{Weight: 4}, // Delete server A, C, D and add server E.
             },
             expected: []string{"Address E", "Address B"},
         },

@@ -1,7 +1,7 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "sync"
 )
@@ -15,7 +15,7 @@ type SRR struct {
     rr *RR
 }
 
-func NewSRR(backendServers lb.BEServers) *SRR {
+func NewSRR(backendServers *model.BEServers) *SRR {
     return &SRR{
         AllClients: make(Clients),
         rr:         NewRR(backendServers),
@@ -45,7 +45,7 @@ func (s *SRR) ChooseServer(req *http.Request) (string, error) {
 }
 
 // Renew updates the round-robin queue and the server bound to the clients.
-func (s *SRR) Renew(healthyServers lb.BEServers) {
+func (s *SRR) Renew(healthyServers model.BEServers) {
     // Update round-robin queue.
     s.rr.Renew(healthyServers)
 

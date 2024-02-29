@@ -1,7 +1,7 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "sort"
     "sync"
@@ -20,10 +20,13 @@ func (r *RR) Less(i, j int) bool {
 }
 
 // NewRR creates a new instance of RR.
-func NewRR(backendServers lb.BEServers) *RR {
+func NewRR(backendServers *model.BEServers) *RR {
     servers := make([]string, 0)
-    for addr := range backendServers {
-        servers = append(servers, addr)
+
+    if backendServers != nil {
+        for addr := range *backendServers {
+            servers = append(servers, addr)
+        }
     }
 
     rr := &RR{servers: servers}
@@ -33,7 +36,7 @@ func NewRR(backendServers lb.BEServers) *RR {
 }
 
 // Renew updates the queue within RR.
-func (r *RR) Renew(backendServers lb.BEServers) {
+func (r *RR) Renew(backendServers model.BEServers) {
     // 1. Check down servers.
     for _, addr := range r.servers {
         if _, ok := backendServers[addr]; !ok {

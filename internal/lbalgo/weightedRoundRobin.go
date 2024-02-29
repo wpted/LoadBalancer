@@ -1,7 +1,7 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "sort"
     "sync"
@@ -24,15 +24,17 @@ func (w *WRR) Less(i, j int) bool {
     return w.servers[i].Weight > w.servers[j].Weight
 }
 
-func NewWRR(backendServers *lb.BEServers) *WRR {
+func NewWRR(backendServers *model.BEServers) *WRR {
     servers := make([]*weightedServer, 0)
-    for addr, srv := range *backendServers {
-        ws := &weightedServer{
-            Addr:   addr,
-            Weight: srv.Weight,
-            Count:  srv.Weight,
+    if backendServers != nil {
+        for addr, srv := range *backendServers {
+            ws := &weightedServer{
+                Addr:   addr,
+                Weight: srv.Weight,
+                Count:  srv.Weight,
+            }
+            servers = append(servers, ws)
         }
-        servers = append(servers, ws)
     }
     wrr := &WRR{servers: servers}
     // Sort by weight.
@@ -53,7 +55,7 @@ func (w *WRR) ChooseServer(_ *http.Request) (string, error) {
     return "", ErrNoServer
 }
 
-func (w *WRR) Renew(currentHealthyServers lb.BEServers) {
+func (w *WRR) Renew(currentHealthyServers model.BEServers) {
     // 1. Check down servers.
     for _, server := range w.servers {
         if _, ok := currentHealthyServers[server.Addr]; !ok {

@@ -1,7 +1,7 @@
 package lbalgo
 
 import (
-    "LoadBalancer/internal/lb"
+    "LoadBalancer/internal/model"
     "net/http"
     "sync"
 )
@@ -10,13 +10,15 @@ import (
 
 type LC struct {
     sync.RWMutex
-    servers []*lb.BEServer // Using a slice as a binary heap.
+    servers []*model.BEServer // Using a slice as a binary heap.
 }
 
-func NewLC(backendServers *lb.BEServers) *LC {
-    servers := make([]*lb.BEServer, 0)
-    for _, srv := range *backendServers {
-        servers = append(servers, srv)
+func NewLC(backendServers *model.BEServers) *LC {
+    servers := make([]*model.BEServer, 0)
+    if backendServers != nil {
+        for _, srv := range *backendServers {
+            servers = append(servers, srv)
+        }
     }
     return &LC{servers: servers}
 }
@@ -31,7 +33,7 @@ func (l *LC) ChooseServer(_ *http.Request) (string, error) {
     return "", ErrNoServer
 }
 
-func (l *LC) Renew(backendServers lb.BEServers) {
+func (l *LC) Renew(backendServers model.BEServers) {
     // 1. Check down servers.
     for _, srv := range l.servers {
         if _, ok := backendServers[srv.Address]; !ok {
@@ -64,7 +66,7 @@ func (l *LC) exists(serverAddress string) bool {
     return false
 }
 
-func (l *LC) push(server *lb.BEServer) {
+func (l *LC) push(server *model.BEServer) {
     l.Lock()
     defer l.Unlock()
     l.servers = append(l.servers, server)
@@ -73,7 +75,7 @@ func (l *LC) push(server *lb.BEServer) {
 func (l *LC) remove(serverAddress string) {
     l.Lock()
     defer l.Unlock()
-    newServers := make([]*lb.BEServer, 0)
+    newServers := make([]*model.BEServer, 0)
 
     for _, srv := range l.servers {
         if serverAddress != srv.Address {
