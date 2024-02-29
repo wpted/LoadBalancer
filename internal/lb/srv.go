@@ -1,6 +1,8 @@
 package lb
 
 import (
+    "LoadBalancer/internal/lbalgo"
+    "LoadBalancer/internal/model"
     "encoding/json"
     "errors"
     "fmt"
@@ -10,35 +12,34 @@ import (
     "time"
 )
 
-type BEServers map[string]*BEServer
-type BEServer struct {
-    Address        string
-    Weight         int
-    ConnectionTime time.Duration
-    Connections    int
-}
-
 // LoadBalancer distributes traffic to AliveServers.
 type LoadBalancer struct {
     http.ServeMux
     http.Client
     sync.RWMutex
     Port         int
-    AliveServers BEServers
-    DownServers  BEServers
+    AliveServers model.BEServers
+    DownServers  model.BEServers
     ScanDone     chan struct{}
     ScanPeriod   time.Duration
+    AlgoDriver   lbalgo.LBAlgo
 }
 
 // New creates an instance of LoadBalancer.
-func New(port int, scanPeriod int) *LoadBalancer {
+func New(port int, scanPeriod int, algoBrief string) (*LoadBalancer, error) {
+    algoDriver, err := lbalgo.ChooseAlgo(algoBrief)
+    if err != nil {
+        return nil, err
+    }
+
     return &LoadBalancer{
         Port:         port,
-        AliveServers: make(map[string]*BEServer),
-        DownServers:  make(map[string]*BEServer),
+        AliveServers: make(map[string]*model.BEServer),
+        DownServers:  make(map[string]*model.BEServer),
         ScanDone:     make(chan struct{}),
         ScanPeriod:   time.Duration(scanPeriod) * time.Second,
-    }
+        AlgoDriver:   algoDriver, // no server in the algo driver now.
+    }, nil
 }
 
 func (l *LoadBalancer) Start() {
@@ -81,7 +82,7 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     defer l.RUnlock()
     // Only register server when backend server is alive.
     if serverAlive {
-        l.AliveServers[p.Address] = new(BEServer)
+        l.AliveServers[p.Address] = new(model.BEServer)
     }
 }
 
@@ -89,7 +90,11 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
 func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
 
     // 1. Forward the request to an address from the Server lists.
-    addr := ""
+    addr, err := l.AlgoDriver.ChooseServer(req)
+    if err != nil {
+
+    }
+
     newReq, err := copyRequest(req, addr)
 
     if err != nil {
@@ -165,7 +170,7 @@ func (l *LoadBalancer) scanServers() {
         healthy := l.healthCheck(addr)
         if !healthy {
             delete(l.AliveServers, addr)
-            l.DownServers[addr] = new(BEServer)
+            l.DownServers[addr] = new(model.BEServer)
         }
     }
 
@@ -174,8 +179,11 @@ func (l *LoadBalancer) scanServers() {
         healthy := l.healthCheck(addr)
         if healthy {
             delete(l.DownServers, addr)
-            l.AliveServers[addr] = new(BEServer)
+            l.AliveServers[addr] = new(model.BEServer)
         }
     }
+    // Update the algo driver with current servers that are alive.
+    l.AlgoDriver.Renew(l.AliveServers)
+
     l.RUnlock()
 }
