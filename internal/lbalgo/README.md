@@ -70,13 +70,29 @@ becoming overwhelmed.
 1. When a new request comes in, the load balancer examines the current number of active connections on each server.
 2. The load balancer then selects the server with the fewest active connections.
 3. The new request is forwarded to the selected server.
-4. The load balancer keeps track of the number of connections to each server and updates this information as requests are
-processed and connections are closed. 
+4. The load balancer keeps track of the number of connections to each server and updates this information as requests
+   are
+   processed and connections are closed.
 
 Pros:
-1. Traffic is distributed dynamically based on the current load on each server
-2. 
 
-Cons:
-1. 
-2. 
+1. Traffic is distributed dynamically based on the current load on each server
+
+### Least Response Time Load Balancing
+
+The least-response-time load balancing strategy collects response times of the calls made with service instances and
+picks an instance based on this information.
+
+Erroneous responses are treated as responses with a long response time, by default 60 seconds. This can be controlled
+with the error-penalty attribute.
+
+The algorithm for service instance selection is as follows:
+
+- if there is a service instance that wasn't used before - use it, otherwise:
+- if there are any service instances with collected response times - select the one for which score is the lowest,
+  otherwise:
+- select a random instance
+
+The score for an instance decreases in time if an instance is not used. This way we ensure that instances that haven't
+been used in a long time, are retried.
+
