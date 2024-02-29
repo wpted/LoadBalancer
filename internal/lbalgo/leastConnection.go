@@ -93,9 +93,6 @@ func rightChildIdx(idx int) int {
 }
 
 func (l *LC) minHeapify(idx int) {
-    l.Lock()
-    defer l.Unlock()
-
     lowest := idx
 
     lChildIdx := leftChildIdx(idx)
@@ -110,7 +107,6 @@ func (l *LC) minHeapify(idx int) {
 
     if lowest != idx {
         l.servers[lowest], l.servers[idx] = l.servers[idx], l.servers[lowest]
-
         l.minHeapify(lowest)
     }
 }
@@ -119,7 +115,7 @@ func (l *LC) buildMinHeap() {
     l.Lock()
     defer l.Unlock()
 
-    for i := len(l.servers) / 2; i != 0; i-- {
+    for i := len(l.servers) / 2; i >= 0; i-- {
         l.minHeapify(i)
     }
 }
