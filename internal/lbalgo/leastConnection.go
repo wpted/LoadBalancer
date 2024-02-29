@@ -21,7 +21,7 @@ func NewLC(backendServers *lb.BEServers) *LC {
     return &LC{servers: servers}
 }
 
-func (l *LC) ChooseServer(_ http.Request) (string, error) {
+func (l *LC) ChooseServer(_ *http.Request) (string, error) {
     // Call buildMinHeap().
     if len(l.servers) != 0 {
         l.buildMinHeap()
@@ -32,8 +32,6 @@ func (l *LC) ChooseServer(_ http.Request) (string, error) {
 }
 
 func (l *LC) Renew(backendServers lb.BEServers) {
-    l.Lock()
-    defer l.Unlock()
     // 1. Check down servers.
     for _, srv := range l.servers {
         if _, ok := backendServers[srv.Address]; !ok {
@@ -48,6 +46,8 @@ func (l *LC) Renew(backendServers lb.BEServers) {
             l.push(srv)
         }
     }
+
+    l.buildMinHeap()
 }
 
 // exists checks whether a serverAddress exists within LC.
@@ -92,6 +92,7 @@ func rightChildIdx(idx int) int {
     return idx*2 + 2
 }
 
+// minHeapify starts the minimum heapify process from the given index.
 func (l *LC) minHeapify(idx int) {
     lowest := idx
 
@@ -111,6 +112,7 @@ func (l *LC) minHeapify(idx int) {
     }
 }
 
+// buildMinHeap turns l.server into a minimum heap.
 func (l *LC) buildMinHeap() {
     l.Lock()
     defer l.Unlock()
