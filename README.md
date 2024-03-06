@@ -69,11 +69,9 @@ fulfill the request.
    server.
     - [x] Allow concurrent requests.
     - [x] Create service registration endpoint.
-    - [ ] Forward should match the incoming HTTP request methods and paths.
 3. Distribute incoming requests between backend servers.
-    - [ ] Allow user to choose algorithm when starting up.
-    - [ ] Copy the received request.
-        - [ ] HTTP header, method, body, url, hosts, schemes, path
+    - [x] Allow user to choose algorithm when starting up.
+    - [x] Copy the received request.
     - [ ] Implement Load Balancing Algorithms
         - [x] Round Robin
         - [x] Sticky Round Robin
