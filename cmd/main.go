@@ -19,7 +19,7 @@ func main() {
 
     flag.Parse()
 
-    srv, err := lb.New(80, *scanPeriod, *algoBrief)
+    srv, err := lb.New(8000, *scanPeriod, *algoBrief)
     if err != nil {
         panic(err)
     }
