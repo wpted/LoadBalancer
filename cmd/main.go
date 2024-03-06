@@ -11,11 +11,18 @@ import (
 )
 
 func main() {
-    // scanPeriod default to 10 seconds
+    // scanPeriod is defaulted to 10 seconds.
     scanPeriod := flag.Int("t", 10, "scan period")
+
+    // algoBrief is defaulted to Round-Robin.
+    algoBrief := flag.String("algo", "RR", "load balancing algorithm")
+
     flag.Parse()
 
-    srv := lb.New(80, *scanPeriod)
+    srv, err := lb.New(80, *scanPeriod, *algoBrief)
+    if err != nil {
+        panic(err)
+    }
     srv.Start()
 
     sigChan := make(chan os.Signal, 1)
