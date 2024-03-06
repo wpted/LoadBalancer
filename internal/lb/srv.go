@@ -6,6 +6,7 @@ import (
     "encoding/json"
     "errors"
     "fmt"
+    "io"
     "log"
     "net/http"
     "sync"
@@ -92,7 +93,7 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
     // 1. Forward the request to an address from the Server lists.
     addr, err := l.AlgoDriver.ChooseServer(req)
     if err != nil {
-
+        log.Println(err)
     }
 
     newReq, err := copyRequest(req, addr)
@@ -106,23 +107,27 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
     if err != nil {
         log.Println(err)
     }
-    log.Println(resp)
+    defer func() {
+        err = resp.Body.Close()
+        if err != nil {
+            log.Println(err)
+        }
+    }()
 
+    bodyBytes, err := io.ReadAll(resp.Body)
     // Write response back to client.
-    _, _ = fmt.Fprint(w, resp.Body)
+    _, err = fmt.Fprint(w, string(bodyBytes))
+    if err != nil {
+        log.Println(err)
+    }
 }
 
 func copyRequest(req *http.Request, target string) (*http.Request, error) {
     // The general form represented is: [scheme:][//[userinfo@]host][/]path[?query][#fragment]
-    fmt.Printf("%#v", req.URL.Scheme)
     r, err := http.NewRequest(req.Method, target, req.Body)
     if err != nil {
         return nil, err
     }
-
-    // Copy the detailed path.
-    r.URL.Scheme = req.URL.Scheme
-    r.URL.Path = req.URL.Path
 
     // Deep copy the header instead of using the original one
     r.Header = make(http.Header)
