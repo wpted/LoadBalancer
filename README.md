@@ -32,6 +32,7 @@ an application. It distributes incoming traffic to maximize the system's capacit
 fulfill the request.
 
 ### Load balancing
+
 1. The client sends a request to the load balancer.
 2. The load balancer selects an appropriate backend server based on its load balancing algorithm.
 3. The load balancer forwards the client's request to the selected backend server.
@@ -63,7 +64,8 @@ fulfill the request.
 
 ## Steps
 
-1. -[x] Create a simple HTTP server using Rust. It should have the ability to start up on a custom port.
+1.
+    -[x] Create a simple HTTP server using Rust. It should have the ability to start up on a custom port.
 
 2. Create a basic HTTP server that can start-up, listen for incoming connections and then forward them to a single
    server.
@@ -96,6 +98,7 @@ fulfill the request.
 - [Load Balancers for System Design Interviews](https://www.youtube.com/watch?v=chyZRNT7eEo)
 
 ### Reads
+
 - [What Is a Load Balancer?](https://www.f5.com/glossary/load-balancer)
 - [Canceling blocking read from stdin](https://www.reddit.com/r/golang/comments/fsxkqr/cancelling_blocking_read_from_stdin/)
 - [Round-robin load balancing](https://avinetworks.com/glossary/round-robin-load-balancing/)
@@ -108,3 +111,7 @@ fulfill the request.
 - [Nginx HTTP upstream least connection module](https://github.com/nginx/nginx/blob/d8ccef021588cf79d2dae7c132a0b1225ed52c30/src/http/modules/ngx_http_upstream_least_conn_module.c)
 - [Least response time load balancing](http://smallrye.io/smallrye-stork/1.1.1/load-balancer/response-time/#)
 - [What is the least response time load balancing technique](https://www.educative.io/answers/what-is-the-least-response-time-load-balancing-technique)
+- [如何正確取得使用者IP](https://devco.re/blog/2014/06/19/client-ip-detection/)
+- [Go HTTP Server Best Practice](https://medium.com/@niondir/my-go-http-server-best-practice-a29773786e15)
+- [Is there any standard for Json API response format?](https://stackoverflow.com/questions/12806386/is-there-any-standard-for-json-api-response-format)
+- [jsend](https://github.com/omniti-labs/jsend)
