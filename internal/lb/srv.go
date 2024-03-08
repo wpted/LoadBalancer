@@ -1,6 +1,7 @@
 package lb
 
 import (
+    "LoadBalancer/internal/lb/response"
     "LoadBalancer/internal/lbalgo"
     "LoadBalancer/internal/model"
     "encoding/json"
@@ -68,14 +69,18 @@ func (l *LoadBalancer) Close() {
 // RegisterRequest is used for registering backend servers.
 type RegisterRequest struct {
     Address string `json:"address"`
+    Weight  int    `json:"weight"`
 }
 
 // Register is a handler that is used by endpoint '/register'.
 func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     var p RegisterRequest
     decoder := json.NewDecoder(req.Body)
+    decoder.DisallowUnknownFields()
     if err := decoder.Decode(&p); err != nil {
         // Return error message.
+        response.WriteJsonResponse(w, http.StatusInternalServerError, response.NewErrorResponse(err))
+        return
     }
     // Ping the address.
     serverAlive := l.healthCheck(p.Address)
@@ -84,12 +89,29 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     // Only register server when backend server is alive.
     if serverAlive {
         l.AliveServers[p.Address] = new(model.BEServer)
+        responsePayload := response.NewSuccessResponse(
+            struct {
+                Server string `json:"server"`
+                Weight int    `json:"weight"`
+            }{
+                Server: p.Address,
+                Weight: p.Weight,
+            })
+        response.WriteJsonResponse(w, http.StatusOK, responsePayload)
+        return
+    } else {
+        // Return service not alive, registration failed.
+        responsePayload := response.NewFailResponse(
+            struct {
+                Title string `json:"title"`
+            }{Title: fmt.Sprintf("%s not alive, registration failed.", p.Address)})
+        response.WriteJsonResponse(w, http.StatusNotFound, responsePayload)
+        return
     }
 }
 
 // Forward is a handler that distributes traffic to all AliveServers.
 func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
-
     // 1. Forward the request to an address from the Server lists.
     addr, err := l.AlgoDriver.ChooseServer(req)
     if err != nil {
@@ -116,10 +138,11 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
 
     bodyBytes, err := io.ReadAll(resp.Body)
     // Write response back to client.
-    _, err = fmt.Fprint(w, string(bodyBytes))
+    _, err = fmt.Fprint(w, fmt.Sprintf("From backend server: %s, data: [ '%s' ].\n", addr, string(bodyBytes)))
     if err != nil {
         log.Println(err)
     }
+
 }
 
 func copyRequest(req *http.Request, target string) (*http.Request, error) {
