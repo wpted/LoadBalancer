@@ -9,3 +9,11 @@ type BEServer struct {
     ConnectionTime time.Duration
     Connections    int
 }
+
+// NewBEServer creates a new instance of BEServer.
+func NewBEServer(address string, weight int) *BEServer {
+    return &BEServer{
+        Address: address,
+        Weight:  weight,
+    }
+}
