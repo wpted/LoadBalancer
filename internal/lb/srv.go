@@ -44,6 +44,8 @@ func New(port int, scanPeriod int, algoBrief string) (*LoadBalancer, error) {
     }, nil
 }
 
+// Start starts the server.
+// The method spawns two goroutines, one starting the http server and the other start the periodic scan routine.
 func (l *LoadBalancer) Start() {
     l.HandleFunc("/", l.Forward)
     l.HandleFunc("/register", l.Register)
@@ -178,6 +180,7 @@ func (l *LoadBalancer) healthCheck(targetServer string) bool {
     return true
 }
 
+// ScanPeriodically triggers the scan periodically in a different goroutine.
 func (l *LoadBalancer) ScanPeriodically() {
     scanTicker := time.NewTicker(l.ScanPeriod)
     defer scanTicker.Stop()
