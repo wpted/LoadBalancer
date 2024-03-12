@@ -27,9 +27,11 @@ func NewSIH(backendServers *model.BEServers) *SIH {
         sih.bucket[i] = make(map[string]struct{})
     }
 
-    for addr := range *backendServers {
-        bucketNum := ihash(addr) % len(sih.bucket)
-        sih.bucket[bucketNum][addr] = struct{}{}
+    if backendServers != nil {
+        for addr := range *backendServers {
+            bucketNum := ihash(addr) % len(sih.bucket)
+            sih.bucket[bucketNum][addr] = struct{}{}
+        }
     }
 
     return sih
