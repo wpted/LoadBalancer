@@ -90,7 +90,7 @@ func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
     defer l.RUnlock()
     // Only register server when backend server is alive.
     if serverAlive {
-        l.AliveServers[p.Address] = new(model.BEServer)
+        l.AliveServers[p.Address] = model.NewBEServer(p.Address, p.Weight)
         responsePayload := response.NewSuccessResponse(
             struct {
                 Server string `json:"server"`
@@ -202,8 +202,8 @@ func (l *LoadBalancer) scanServers() {
     for addr := range l.AliveServers {
         healthy := l.healthCheck(addr)
         if !healthy {
+            l.DownServers[addr] = l.AliveServers[addr]
             delete(l.AliveServers, addr)
-            l.DownServers[addr] = new(model.BEServer)
         }
     }
 
@@ -211,8 +211,8 @@ func (l *LoadBalancer) scanServers() {
     for addr := range l.DownServers {
         healthy := l.healthCheck(addr)
         if healthy {
+            l.AliveServers[addr] = l.DownServers[addr]
             delete(l.DownServers, addr)
-            l.AliveServers[addr] = new(model.BEServer)
         }
     }
     // Update the algo driver with current servers that are alive.
