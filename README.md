@@ -115,3 +115,4 @@ fulfill the request.
 - [Go HTTP Server Best Practice](https://medium.com/@niondir/my-go-http-server-best-practice-a29773786e15)
 - [Is there any standard for Json API response format?](https://stackoverflow.com/questions/12806386/is-there-any-standard-for-json-api-response-format)
 - [jsend](https://github.com/omniti-labs/jsend)
+- [Source IP Hashing](https://kb.vmware.com/s/article/2006129)
