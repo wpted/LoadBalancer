@@ -47,8 +47,8 @@ func (w *WRR) ChooseServer(_ *http.Request) (string, error) {
         chosenServer := w.servers[0].Addr
         w.servers[0].Count--
         if w.servers[0].Count <= 0 {
+            w.servers[0].Count = w.servers[0].Weight
             w.rotate()
-            w.servers[len(w.servers)-1].Count = w.servers[len(w.servers)-1].Weight
         }
         return chosenServer, nil
     }
@@ -66,13 +66,16 @@ func (w *WRR) Renew(currentHealthyServers model.BEServers) {
 
     // 2. Check up servers.
     for addr, server := range currentHealthyServers {
-        if !w.exists(addr) {
+        if srv, exist := w.exists(addr); !exist {
             ws := &weightedServer{
                 Addr:   addr,
                 Weight: server.Weight,
                 Count:  server.Weight,
             }
             w.push(ws)
+        } else {
+            srv.Weight = server.Weight
+            srv.Count = server.Weight
         }
     }
 
@@ -106,17 +109,16 @@ func (w *WRR) pop() *weightedServer {
     return head
 }
 
-func (w *WRR) exists(serverAddress string) bool {
+func (w *WRR) exists(serverAddress string) (*weightedServer, bool) {
     w.RLock()
     defer w.RUnlock()
     // TODO: Should use binary search.
     for _, server := range w.servers {
         if serverAddress == server.Addr {
-            return true
+            return server, true
         }
     }
-
-    return false
+    return nil, false
 }
 
 func (w *WRR) remove(serverAddress string) {
