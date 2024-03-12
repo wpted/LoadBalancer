@@ -116,6 +116,8 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
     addr, err := l.AlgoDriver.ChooseServer(req)
     if err != nil {
         log.Println(err)
+        response.WriteJsonResponse(w, http.StatusServiceUnavailable, response.NewErrorResponse(err))
+        return
     }
 
     newReq, err := copyRequest(req, addr)
@@ -132,7 +134,7 @@ func (l *LoadBalancer) Forward(w http.ResponseWriter, req *http.Request) {
     defer func() {
         err = resp.Body.Close()
         if err != nil {
-            log.Println(err)
+            log.Fatal(err)
         }
     }()
 
