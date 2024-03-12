@@ -96,3 +96,20 @@ The algorithm for service instance selection is as follows:
 The score for an instance decreases in time if an instance is not used. This way we ensure that instances that haven't
 been used in a long time, are retried.
 
+### Source IP Hashing Load Balancing
+
+Hashes are shorter and easier to use than the information that they are based on, while retaining enough information to
+ensure that no two different pieces of information generate the same hash and are therefore confused with one another.
+
+Most of the hashing algorithms calculate two hash values:
+
+- A hash of the service’s IP address and port.
+- A hash of the incoming URL, the domain name, the source IP address, the destination IP address, or the source and
+  destination IP addresses, depending on the configured hash method.
+
+Step:
+
+1. Computes hash value
+2. Select a service
+3. Is the service up? No, select a new service.
+4. Forward the request to the selected service.
