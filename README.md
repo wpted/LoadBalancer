@@ -116,3 +116,4 @@ fulfill the request.
 - [Is there any standard for Json API response format?](https://stackoverflow.com/questions/12806386/is-there-any-standard-for-json-api-response-format)
 - [jsend](https://github.com/omniti-labs/jsend)
 - [Source IP Hashing](https://kb.vmware.com/s/article/2006129)
+- [Hashing Methods](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/hashing-methods.html)
