@@ -81,7 +81,7 @@ fulfill the request.
         - [x] Least connections
         - [ ] Least time
         - [ ] URL hash
-        - [ ] Source IP hash
+        - [x] Source IP hash
         - [ ] Consistent hashing
         - [ ] Threshold
         - [ ] Random with two choices
