@@ -41,3 +41,16 @@ func ChooseAlgo(algoBrief string) (LBAlgo, error) {
         return nil, ErrUnknownAlgo
     }
 }
+
+// getClientIP gets the IP of the client. If the client is hided behind proxies or load balancers,
+// we get the IP from retrieving the value from X-Forwarded-For header.
+// This method is only a demo and shouldn't be used in any production code. Header can be changed after a request is sent.
+// The best way is to store all occurring ip for further analytics.
+func getClientIP(req *http.Request) string {
+    clientIP := req.Header.Get("X-Forwarded-For")
+    if clientIP == "" {
+        return req.RemoteAddr
+    }
+
+    return clientIP
+}

@@ -2,7 +2,6 @@ package lbalgo
 
 import (
     "LoadBalancer/internal/model"
-    "fmt"
     "net/http"
     "sync"
 )
@@ -27,7 +26,6 @@ func NewSRR(backendServers *model.BEServers) *SRR {
 // It ensures that each client is consistently routed to the same backend server as long as its sticky criteria (IP address) remains the same, providing session affinity or sticky sessions.
 func (s *SRR) ChooseServer(req *http.Request) (string, error) {
     clientIP := getClientIP(req)
-    fmt.Println(clientIP)
     s.Lock()
     defer s.Unlock()
     beAddr, ok := s.AllClients[clientIP]
@@ -68,17 +66,4 @@ func (s *SRR) Renew(healthyServers model.BEServers) {
             s.AllClients[client] = newChosenSrv
         }
     }
-}
-
-// getClientIP gets the IP of the client. If the client is hided behind proxies or load balancers,
-// we get the IP from retrieving the value from X-Forwarded-For header.
-// This method is only a demo and shouldn't be used in any production code. Header can be changed after a request is sent.
-// The best way is to store all occurring ip for further analytics.
-func getClientIP(req *http.Request) string {
-    clientIP := req.Header.Get("X-Forwarded-For")
-    if clientIP == "" {
-        return req.RemoteAddr
-    }
-
-    return clientIP
 }
