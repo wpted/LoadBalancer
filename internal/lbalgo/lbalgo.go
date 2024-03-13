@@ -12,6 +12,7 @@ const (
     StickyRoundRobin   = "SRR"
     WeightedRoundRobin = "WRR"
     SourceIPHashing    = "SIH"
+    PowerOfTwoChoices  = "PTC"
 )
 
 var (
@@ -36,7 +37,8 @@ func ChooseAlgo(algoBrief string) (LBAlgo, error) {
         return NewWRR(nil), nil
     case SourceIPHashing:
         return NewSIH(nil), nil
-
+    case PowerOfTwoChoices:
+        return NewPTC(nil), nil
     default:
         return nil, ErrUnknownAlgo
     }
