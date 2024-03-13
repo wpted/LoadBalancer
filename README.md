@@ -80,10 +80,10 @@ fulfill the request.
         - [x] Weighted Round Robin
         - [x] Least connections
         - [ ] Least time
+        - [ ] Power of two choices
         - [ ] URL hash
         - [x] Source IP hash
         - [ ] Consistent hashing
-        - [ ] Power of two choices
 4. Perform periodic health check.
     - [x] Allow a health check period to be specified on the command line during initializing.
         - [x] Health check url, GET request on backend server.
@@ -116,3 +116,4 @@ fulfill the request.
 - [jsend](https://github.com/omniti-labs/jsend)
 - [Source IP Hashing](https://kb.vmware.com/s/article/2006129)
 - [Hashing Methods](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/hashing-methods.html)
+- [Why do we need a new load-balancing algorithm?](https://www.nginx.com/blog/nginx-power-of-two-choices-load-balancing-algorithm/)
