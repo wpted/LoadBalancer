@@ -113,3 +113,25 @@ Step:
 2. Select a service
 3. Is the service up? No, select a new service.
 4. Forward the request to the selected service.
+
+### Power of Two Choices
+
+> It All Falls Apart with Multiple Guides
+> So far, we’ve had one guide (that is, load balancer) with a complete view of the queues and response time in the
+> arrivals hall. That guide tries to make the best choice for each traveler based on the information he knows.
+> Now consider what happens if we have several guides, each directing travelers independently. The guides have
+> independent
+> views of the queue lengths and queue wait times – they only consider the travelers that they send to each queue.
+> This scenario is prone to an undesirable behavior, where all the guides notice that one queue is momentarily shorter
+> and faster, and all send travelers to that queue. Simulations show that this “herd behavior” distributes travelers
+> in a way
+> that is unbalanced and unfair. In the same way, several independent load balancers can overload some upstream
+> servers,
+> no matter which “best choice” algorithm you use.
+
+
+> Instead of making the absolute best choice using incomplete data, with “power of two choices” you pick two queues at
+> random and chose the better option of the two, avoiding the worse choice. “Power of two choices” is efficient to
+> implement. You don’t have to compare all queues to choose the best option each time; instead, you only need to compare
+> two. And, perhaps unintuitively, it works better at scale than the best‑choice algorithms. It avoids the undesired herd
+> behavior by the simple approach of avoiding the worst queue and distributing traffic with a degree of randomness.
