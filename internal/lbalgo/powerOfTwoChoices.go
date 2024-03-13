@@ -69,9 +69,6 @@ func (p *PTC) Renew(currentHealthyServers model.BEServers) {
 
 // exists check if a serverAddress is in the list.
 func (p *PTC) exists(address string) bool {
-    p.RLock()
-    defer p.RUnlock()
-
     for _, srv := range p.servers {
         if srv.Address == address {
             return true
