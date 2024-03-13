@@ -4,6 +4,7 @@ import (
     "LoadBalancer/internal/model"
     "errors"
     "net/http"
+    "strings"
 )
 
 const (
@@ -26,7 +27,7 @@ type LBAlgo interface {
 }
 
 func ChooseAlgo(algoBrief string) (LBAlgo, error) {
-    switch algoBrief {
+    switch strings.ToUpper(algoBrief) {
     case LeastConnection:
         return NewLC(nil), nil
     case RoundRobin:
