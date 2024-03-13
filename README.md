@@ -83,8 +83,7 @@ fulfill the request.
         - [ ] URL hash
         - [x] Source IP hash
         - [ ] Consistent hashing
-        - [ ] Threshold
-        - [ ] Random with two choices
+        - [ ] Power of two choices
 4. Perform periodic health check.
     - [x] Allow a health check period to be specified on the command line during initializing.
         - [x] Health check url, GET request on backend server.
