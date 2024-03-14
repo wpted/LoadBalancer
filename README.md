@@ -118,3 +118,4 @@ fulfill the request.
 - [Hashing Methods](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/hashing-methods.html)
 - [Why do we need a new load-balancing algorithm?](https://www.nginx.com/blog/nginx-power-of-two-choices-load-balancing-algorithm/)
 - [What is Consistent Hashing?](https://www.baeldung.com/cs/consistent-hashing)
+- [Consistent Hashing](https://www.toptal.com/big-data/consistent-hashing)
