@@ -80,7 +80,7 @@ fulfill the request.
         - [x] Weighted Round Robin
         - [x] Least connections
         - [ ] Least time
-        - [ ] Power of two choices
+        - [x] Power of two choices
         - [ ] URL hash
         - [x] Source IP hash
         - [ ] Consistent hashing
@@ -117,3 +117,4 @@ fulfill the request.
 - [Source IP Hashing](https://kb.vmware.com/s/article/2006129)
 - [Hashing Methods](https://docs.netscaler.com/en-us/citrix-adc/current-release/load-balancing/load-balancing-customizing-algorithms/hashing-methods.html)
 - [Why do we need a new load-balancing algorithm?](https://www.nginx.com/blog/nginx-power-of-two-choices-load-balancing-algorithm/)
+- [What is Consistent Hashing?](https://www.baeldung.com/cs/consistent-hashing)
