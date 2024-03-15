@@ -112,62 +112,93 @@ Start the load balancer. The default algorithm is set to Round-Robin.
    go run cmd/main.go
 ```
 
+### Using different load balancing algorithms
 If we want to start the load balancer with a different algorithm, use flag `-algo`. The algorithm isn't case-sensitive.
+
 ```bash
    go run cmd/main.go -algo WRR  // weighted-round robin
 ```
 
 Currently available algorithms are:
-   - RR, Round Robin
-   - WRR, Weighted Round Robin
-   - SRR, Sticky Round Robin
-   - LC, Least Connection     
-   - PTC, Power of Two Choices  
-   - SIH, Source IP Hashing
 
+- RR, Round Robin
+- WRR, Weighted Round Robin
+- SRR, Sticky Round Robin
+- LC, Least Connection
+- PTC, Power of Two Choices
+- SIH, Source IP Hashing
+
+### Register backend servers
 Before the load balancer can start directing traffic, we have to register the backend servers first.
 There's one API endpoint exposed: register, unknown field disallowed.
 
 [POST] /register
+
 ```json
 {
-    "address": "http://127.0.0.1:1080",
-    "weight": 5
+  "address": "http://127.0.0.1:1080",
+  "weight": 5
 }
 ```
 
 Response:
 
- - 200 OK: The server has been successfully registered.
- - 400 Bad Request: If the request body is missing or malformed.
- - 403 Forbidden: If there is an unknown field in the request body. Only address and weight fields are allowed.
- 
+- 200 OK: The server has been successfully registered.
+- 400 Bad Request: If the request body is missing or malformed.
+- 403 Forbidden: If there is an unknown field in the request body. Only address and weight fields are allowed.
+
 Example Response ( Success ):
 
 ```json
 {
-   "status":"success",
-   "data":{
-      "server":"http://127.0.0.1:1080",
-      "weight":5
-   }
+  "status": "success",
+  "data": {
+    "server": "http://127.0.0.1:1080",
+    "weight": 5
+  }
 }
 ```
 
 Example Response ( Fail ):
+
 ```json
 {
-   "status":"fail",
-   "data": {
-      "title":"http://127.0.0.1:1081 not alive, registration failed."
-   }
+  "status": "fail",
+  "data": {
+    "title": "http://127.0.0.1:1081 not alive, registration failed."
+  }
 }
 ```
 
-
 After registering the backend servers, try sending any request. You'll see the backend server respond with
+
 ```text
 From backend server: http://127.0.0.1:1080, data: [ 'Hello from Rust server' ].
+```
+
+### Periodic scan
+There will be a slight delay after register. The load balancer checks for alive servers periodically, and registered
+server will be up at the next scan.
+The default scan period is 10 seconds, and if users want the duration to be smaller, start the server with a flag `-t`.
+
+```bash
+   go run cmd/main.go -t 5  #Scan for up and down servers every 5 seconds. 
+```
+
+### Fail over
+If a backend server is down (failed the health check), the load balancer will stop directing traffic to it. If any
+previous down server is repaired, the load balancer will start sending request to it.
+
+
+### No server
+If there's currently no server alive, the load balancer will respond with -
+
+Example Response ( Error ):
+```json
+{
+   "status":"error",
+   "data":"error no available server"
+}
 ```
 
 ## References
