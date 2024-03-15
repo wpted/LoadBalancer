@@ -76,6 +76,16 @@ type RegisterRequest struct {
 
 // Register is a handler that is used by endpoint '/register'.
 func (l *LoadBalancer) Register(w http.ResponseWriter, req *http.Request) {
+    if req.Method != http.MethodPost {
+        responsePayload := response.NewFailResponse(
+            struct {
+                Title string `json:"title"`
+            }{Title: fmt.Sprintf("Wrong method. Expected %s, got %s.", http.MethodPost, req.Method)})
+        // Return error message.
+        response.WriteJsonResponse(w, http.StatusMethodNotAllowed, responsePayload)
+        return
+    }
+
     var p RegisterRequest
     decoder := json.NewDecoder(req.Body)
     decoder.DisallowUnknownFields()
