@@ -74,16 +74,13 @@ fulfill the request.
 3. Distribute incoming requests between backend servers.
     - [x] Allow user to choose algorithm when starting up.
     - [x] Copy the received request.
-    - [ ] Implement Load Balancing Algorithms
+    - [x] Implement Load Balancing Algorithms
         - [x] Round Robin
         - [x] Sticky Round Robin
         - [x] Weighted Round Robin
         - [x] Least connections
-        - [ ] Least time
         - [x] Power of two choices
-        - [ ] URL hash
         - [x] Source IP hash
-        - [ ] Consistent hashing
 4. Perform periodic health check.
     - [x] Allow a health check period to be specified on the command line during initializing.
         - [x] Health check url, GET request on backend server.
