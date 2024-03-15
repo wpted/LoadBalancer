@@ -87,6 +87,89 @@ fulfill the request.
     - [x] Remove unhealthy backend servers from available servers.
     - [x] Move server that came alive back to the available servers.
 
+## How to use
+
+### Start backend server
+
+After pulling, start the Rust backend server in `/backend_server` using cargo.
+The backend server runs default at port 1080.
+
+```bash
+   cargo run
+```
+
+Start another server with custom address and port input.
+
+```bash 
+   cargo run 127.0.0.1 1081
+```
+
+### Test the load balancer.
+
+Start the load balancer. The default algorithm is set to Round-Robin.
+
+```bash
+   go run cmd/main.go
+```
+
+If we want to start the load balancer with a different algorithm, use flag `-algo`. The algorithm isn't case-sensitive.
+```bash
+   go run cmd/main.go -algo WRR  // weighted-round robin
+```
+
+Currently available algorithms are:
+   - RR, Round Robin
+   - WRR, Weighted Round Robin
+   - SRR, Sticky Round Robin
+   - LC, Least Connection     
+   - PTC, Power of Two Choices  
+   - SIH, Source IP Hashing
+
+Before the load balancer can start directing traffic, we have to register the backend servers first.
+There's one API endpoint exposed: register, unknown field disallowed.
+
+[POST] /register
+```json
+{
+    "address": "http://127.0.0.1:1080",
+    "weight": 5
+}
+```
+
+Response:
+
+ - 200 OK: The server has been successfully registered.
+ - 400 Bad Request: If the request body is missing or malformed.
+ - 403 Forbidden: If there is an unknown field in the request body. Only address and weight fields are allowed.
+ 
+Example Response ( Success ):
+
+```json
+{
+   "status":"success",
+   "data":{
+      "server":"http://127.0.0.1:1080",
+      "weight":5
+   }
+}
+```
+
+Example Response ( Fail ):
+```json
+{
+   "status":"fail",
+   "data": {
+      "title":"http://127.0.0.1:1081 not alive, registration failed."
+   }
+}
+```
+
+
+After registering the backend servers, try sending any request. You'll see the backend server respond with
+```text
+From backend server: http://127.0.0.1:1080, data: [ 'Hello from Rust server' ].
+```
+
 ## References
 
 ### Videos
